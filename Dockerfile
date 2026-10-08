@@ -4,8 +4,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PADDLE_PDX_MODEL_SOURCE=BOS \
-    OMP_NUM_THREADS=4 \
-    MKL_NUM_THREADS=4
+    OMP_NUM_THREADS=2 \
+    MKL_NUM_THREADS=2
 
 WORKDIR /app
 
@@ -15,16 +15,20 @@ RUN apt-get update \
 
 COPY requirements.txt ./requirements.txt
 
-# PaddlePaddle CPU wheel from the official stable repository, followed by the
-# OCR/service dependencies. Versions match the documented PaddleOCR 3.1 stack.
+# Keep the PaddleOCR 3.1 stack minimal. PaddleOCR 3.1.0's published
+# metadata installs PaddleX extras for IE/multimodal/translation as well,
+# which pulls LangChain and causes an incompatibility in PaddleX 3.1.x.
+# Install only OCR-core, then install PaddleOCR itself without dependencies.
 RUN python -m pip install --upgrade pip setuptools wheel \
     && python -m pip install paddlepaddle==3.0.0 -i https://www.paddlepaddle.org.cn/packages/stable/cpu/ \
-    && python -m pip install -r requirements.txt
+    && python -m pip install -r requirements.txt \
+    && python -m pip install --no-deps paddleocr==3.1.0 \
+    && python -m pip check
 
 COPY app ./app
 
-# Download detection/recognition model assets at image build time so the first
-# production OCR request does not pay a multi-minute model download cold start.
+# Download OCR model assets at image build time so the first request avoids
+# a multi-minute model-download cold start.
 RUN OCR_API_KEY=build-preload python -m app.preload
 
 ENV PORT=8080
