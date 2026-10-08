@@ -1,6 +1,7 @@
 services:
   - type: web
     name: siged-ocr
+    plan: free
     runtime: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .
