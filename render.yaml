@@ -10,6 +10,6 @@ services:
       - key: OCR_API_KEY
         sync: false
       - key: OCR_MAX_CONCURRENCY
-        value: "2"
+        value: "1"
       - key: OCR_MAX_IMAGE_BYTES
         value: "20971520"
