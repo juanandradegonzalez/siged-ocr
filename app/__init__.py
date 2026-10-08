@@ -1,1 +1,0 @@
-# SIGED OCR worker
