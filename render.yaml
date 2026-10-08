@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: siged-ocr
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: OCR_API_KEY
+        sync: false
+      - key: OCR_MAX_CONCURRENCY
+        value: "2"
+      - key: OCR_MAX_IMAGE_BYTES
+        value: "20971520"
